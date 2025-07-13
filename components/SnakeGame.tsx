@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useCallback } from 'react';
+import { ArrowUpIcon, ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon } from './icons';
 
 interface SnakeGameProps {
   onGameOver: (score: number) => void;
@@ -14,7 +15,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver }) => {
     direction: { x: 1, y: 0 },
     nextDirection: { x: 1, y: 0 },
     score: 0,
-    speed: 150, // ms per tick
+    speed: 250, // ms per tick
   });
 
   const generateFood = useCallback((canvas: HTMLCanvasElement, snake: {x: number, y: number}[]) => {
@@ -27,6 +28,19 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver }) => {
       } while (snake.some(segment => segment.x === foodPos.x && segment.y === foodPos.y));
       return foodPos;
   }, []);
+
+  const handleDirectionChange = useCallback((newDir: { x: number; y: number }) => {
+    const { direction } = gameState.current;
+    // Attempting vertical move
+    if (newDir.y !== 0 && direction.y === 0) {
+      gameState.current.nextDirection = newDir;
+    }
+    // Attempting horizontal move
+    if (newDir.x !== 0 && direction.x === 0) {
+      gameState.current.nextDirection = newDir;
+    }
+  }, []);
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -68,7 +82,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver }) => {
         gameState.current.score += 10;
         gameState.current.food = generateFood(canvas, newSnake);
         if(gameState.current.speed > 60) {
-            gameState.current.speed -= 2; // Speed up
+            gameState.current.speed -= 5; // Speed up
         }
       } else {
         newSnake.pop();
@@ -133,5 +147,45 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver }) => {
     };
   }, [onGameOver, generateFood]);
 
-  return <canvas ref={canvasRef} className="w-full h-full bg-black/50 rounded-lg" />;
+  return (
+    <div className="relative w-full h-full">
+      <canvas ref={canvasRef} className="w-full h-full bg-black/50 rounded-lg" />
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
+        <div className="grid grid-cols-3 grid-rows-3 w-40 h-40 gap-2">
+          <button
+            onTouchStart={() => handleDirectionChange({ x: 0, y: -1 })}
+            onClick={() => handleDirectionChange({ x: 0, y: -1 })}
+            className="col-start-2 row-start-1 bg-white/20 text-white rounded-lg p-2 hover:bg-white/40 active:bg-white/50 transition-all flex justify-center items-center"
+            aria-label="Move up"
+          >
+            <ArrowUpIcon className="w-8 h-8 pointer-events-none" />
+          </button>
+          <button
+            onTouchStart={() => handleDirectionChange({ x: -1, y: 0 })}
+            onClick={() => handleDirectionChange({ x: -1, y: 0 })}
+            className="col-start-3 row-start-2 bg-white/20 text-white rounded-lg p-2 hover:bg-white/40 active:bg-white/50 transition-all flex justify-center items-center"
+            aria-label="Move left"
+          >
+            <ArrowLeftIcon className="w-8 h-8 pointer-events-none" />
+          </button>
+          <button
+            onTouchStart={() => handleDirectionChange({ x: 1, y: 0 })}
+            onClick={() => handleDirectionChange({ x: 1, y: 0 })}
+            className="col-start-1 row-start-2 bg-white/20 text-white rounded-lg p-2 hover:bg-white/40 active:bg-white/50 transition-all flex justify-center items-center"
+            aria-label="Move right"
+          >
+            <ArrowRightIcon className="w-8 h-8 pointer-events-none" />
+          </button>
+          <button
+            onTouchStart={() => handleDirectionChange({ x: 0, y: 1 })}
+            onClick={() => handleDirectionChange({ x: 0, y: 1 })}
+            className="col-start-2 row-start-3 bg-white/20 text-white rounded-lg p-2 hover:bg-white/40 active:bg-white/50 transition-all flex justify-center items-center"
+            aria-label="Move down"
+          >
+            <ArrowDownIcon className="w-8 h-8 pointer-events-none" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };

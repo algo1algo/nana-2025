@@ -1,5 +1,6 @@
 {
   "name": "Copy of A Birthday Constellation for Shiri - for deploy",
   "description": "A beautiful, interactive birthday website for Shiri Bashan, featuring a wall of wishes from friends and family, a gallery of memories, and a personal playlist. The theme is 'The Shiri Constellation', representing the people and memories in her life as stars.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "prompt": ""
 }

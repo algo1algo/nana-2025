@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Wish, GalleryImage, GameId, Score } from './types';
 import { WishModal } from './components/WishModal';
@@ -172,6 +173,8 @@ function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [activeGame, setActiveGame] = useState<GameId | null>(null);
+
   const [gameScores, setGameScores] = useState<Record<GameId, Score[]>>({
     starCatcher: getFromStorage<Score[]>('scores_starCatcher', []),
     snake: getFromStorage<Score[]>('scores_snake', []),
@@ -247,8 +250,8 @@ function App() {
 
   // Automatic slideshow transition
   useEffect(() => {
-    // Don't auto-play if there's only one image or none
-    if (images.length <= 1) return;
+    // Pause slideshow if a game is active or if there are not enough images
+    if (activeGame || images.length <= 1) return;
 
     const timer = setInterval(() => {
       handleNextImage();
@@ -256,7 +259,7 @@ function App() {
 
     // Cleanup the interval on component unmount or when the index changes
     return () => clearInterval(timer);
-  }, [currentImageIndex, images.length, handleNextImage]); // Reset timer on manual navigation or when image list changes
+  }, [activeGame, currentImageIndex, images.length, handleNextImage]);
 
 
   return (
@@ -332,13 +335,18 @@ function App() {
                       <input type="file" ref={fileInputRef} onChange={handleFileSelected} accept="image/*" className="hidden" />
                       <button onClick={handleAddImageClick} className="bg-soft-gold text-midnight-blue font-bold text-lg py-3 px-8 rounded-lg hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 mx-auto glow-gold-button">
                           <PlusIcon className="w-6 h-6" />
-                          <span>הוסיפו תמונה שלכם</span>
+                          <span>הוסיפו תמונות שלכם עם שירי</span>
                       </button>
                   </div>
               </div>
           </section>
           
-          <GamesSection scores={gameScores} onAddScore={handleAddScore} />
+          <GamesSection 
+            scores={gameScores} 
+            onAddScore={handleAddScore} 
+            activeGame={activeGame}
+            setActiveGame={setActiveGame}
+          />
 
           <section id="playlist" className="py-20 px-6 text-center">
               <div className="max-w-2xl mx-auto flex flex-col items-center">

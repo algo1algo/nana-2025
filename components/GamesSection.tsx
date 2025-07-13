@@ -9,10 +9,11 @@ import { GameOverModal } from './GameOverModal';
 interface GamesSectionProps {
   scores: Record<GameId, Score[]>;
   onAddScore: (gameId: GameId, name: string, score: number) => void;
+  activeGame: GameId | null;
+  setActiveGame: (game: GameId | null) => void;
 }
 
-export const GamesSection: React.FC<GamesSectionProps> = ({ scores, onAddScore }) => {
-  const [activeGame, setActiveGame] = useState<GameId | null>(null);
+export const GamesSection: React.FC<GamesSectionProps> = ({ scores, onAddScore, activeGame, setActiveGame }) => {
   const [lastGameResult, setLastGameResult] = useState<{ gameId: GameId, score: number } | null>(null);
 
   const handleGameOver = (score: number) => {
@@ -56,8 +57,10 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ scores, onAddScore }
         </p>
 
         {activeGame ? (
-          <div className="w-full max-w-4xl h-[60vh] md:h-[70vh] rounded-lg shadow-2xl overflow-hidden mb-8">
-            {renderGame()}
+          <div className="w-full max-w-4xl h-[60vh] md:h-[70vh] rounded-lg shadow-2xl overflow-hidden mb-8 flex flex-col items-center">
+            <div className="w-full h-full">
+              {renderGame()}
+            </div>
              <button
               onClick={() => setActiveGame(null)}
               className="mt-4 bg-muted-rose text-white font-bold py-2 px-6 rounded-lg hover:bg-opacity-90 transition"
