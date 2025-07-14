@@ -30,6 +30,14 @@ const Image = mongoose.model('Image', new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 }));
 
+// --- ADD THIS: Score model ---
+const Score = mongoose.model('Score', new mongoose.Schema({
+  gameId: String,
+  name: String,
+  score: Number,
+  timestamp: { type: Date, default: Date.now }
+}));
+
 // API endpoints
 app.post('/api/messages', async (req, res) => {
   const { text, author } = req.body;
@@ -53,6 +61,21 @@ app.post('/api/images', upload.single('image'), async (req, res) => {
 app.get('/api/images', async (req, res) => {
   const images = await Image.find().sort({ timestamp: 1 });
   res.json(images);
+});
+
+// --- ADD THIS: Game scores endpoints ---
+app.post('/api/scores/:gameId', async (req, res) => {
+  const { name, score } = req.body;
+  const { gameId } = req.params;
+  const newScore = new Score({ gameId, name, score });
+  await newScore.save();
+  res.status(201).json(newScore);
+});
+
+app.get('/api/scores/:gameId', async (req, res) => {
+  const { gameId } = req.params;
+  const scores = await Score.find({ gameId }).sort({ score: -1, timestamp: 1 });
+  res.json(scores);
 });
 
 app.listen(3001, () => console.log('Server running on port 3001'));

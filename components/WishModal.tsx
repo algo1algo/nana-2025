@@ -5,12 +5,13 @@ import { generateWishSuggestion } from '../services/geminiService';
 interface WishModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddWish: (name: string, message: string) => void;
+  onAddWish: (name: string, message: string, imageFile?: File | null) => void;
 }
 
 export const WishModal: React.FC<WishModalProps> = ({ isOpen, onClose, onAddWish }) => {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSuggestion = useCallback(async () => {
@@ -20,12 +21,17 @@ export const WishModal: React.FC<WishModalProps> = ({ isOpen, onClose, onAddWish
     setIsGenerating(false);
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageFile(e.target.files?.[0] || null);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && message.trim()) {
-      onAddWish(name, message);
+      onAddWish(name, message, imageFile);
       setName('');
       setMessage('');
+      setImageFile(null);
     }
   };
 
@@ -84,10 +90,16 @@ export const WishModal: React.FC<WishModalProps> = ({ isOpen, onClose, onAddWish
           </div>
           
           <div>
-            <button type="button" className="w-full text-center p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-muted-rose hover:text-muted-rose transition-colors">
-              [+] הוסיפו תמונה משותפת (אופציונלי)
-            </button>
-            <p className="text-xs text-center text-gray-400 mt-1">פיצ'ר העלאת תמונות יגיע בקרוב!</p>
+            <label className="block text-lg font-bold text-midnight-blue mb-2">הוסיפו תמונה משותפת (אופציונלי)</label>
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full p-2 border-2 border-gray-200 rounded-lg"
+            />
+            <p className="text-xs text-center text-gray-400 mt-1">
+              {imageFile ? `נבחרה תמונה: ${imageFile.name}` : "פיצ'ר העלאת תמונות זמין!"}
+            </p>
           </div>
 
           <button type="submit" className="w-full bg-muted-rose text-white font-bold text-xl py-4 rounded-lg hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg">
